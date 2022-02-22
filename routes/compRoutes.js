@@ -17,7 +17,6 @@ router.get("/", async function(req, res, next) {
 
 /* GET /companies/[code]
 Return obj of company: {company: {code, name, description, invoices: [id, ...]}}
-
 If the company given cannot be found, this should return a 404 status response. */
 router.get("/:code", async function(req, res, next) {
     try {
@@ -41,7 +40,7 @@ router.get("/:code", async function(req, res, next) {
     }
 })
 
-/*     POST /companies
+/*  POST /companies
     Adds a company.
     Needs to be given JSON like: {code, name, description}
     Returns obj of new company: {company: {code, name, description}} */
@@ -50,13 +49,8 @@ router.post("/", async function(req, res, next) {
         const { code, name, description } = req.body;
         console.log(code, name, description);
         const results = await db.query('INSERT INTO companies (code, name, description) VALUES ($1, $2, $3) RETURNING code, name, description', [code, name, description]);
-        console.log(results.rows);
         return res.status(201).json({
-            company: {
-                name: results.rows[0].name,
-                code: results.rows[0].code,
-                description: results.rows[0].description
-            }
+            company: results.rows[0]
         });
     } catch (err) {
         return next(err)

@@ -114,8 +114,7 @@ If invoice cannot be found, returns a 404.
 Returns: {status: "deleted"} */
 router.delete("/:id", async function(req, res, next) {
     try {
-        const id = req.params.id
-        console.log(id)
+        const id = req.params.id;
         const results = await db.query('DELETE FROM invoices WHERE id=$1 RETURNING id, comp_code', [id])
         if (results.rows.length === 0) {
             throw new ExpressError("Not found", 404);

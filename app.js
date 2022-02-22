@@ -2,34 +2,23 @@
 
 const appCompRoutes = require("./routes/compRoutes");
 const appInvRoutes = require("./routes/invoiceRoutes");
-
 const express = require("express");
 const ExpressError = require("./expressError")
 
 const app = express();
 
 app.use(express.json());
+
 app.use("/companies", appCompRoutes)
 app.use("/invoices", appInvRoutes)
 
-
-
-
-
-
-
-
-
 /** 404 handler */
-
 app.use(function(req, res, next) {
     const err = new ExpressError("Not Found", 404);
-    console.log("404 not fiundeeeeeeed!")
     return next(err);
 });
 
 /** general error handler */
-
 app.use((err, req, res, next) => {
     let status = err.status || 500;
     let message = err.message;
@@ -37,4 +26,5 @@ app.use((err, req, res, next) => {
 });
 
 
+/* we need app in server.js */
 module.exports = app;
