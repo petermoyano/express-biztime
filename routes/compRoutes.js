@@ -1,8 +1,8 @@
 const express = require("express");
 
 const router = new express.Router();
-const ExpressError = require("./expressError");
-const db = require("./db")
+const ExpressError = require("../expressError");
+const db = require("../db")
 
 /* GET /companies
 Returns list of companies, like {companies: [{code, name}, ...]} */
@@ -16,19 +16,24 @@ router.get("/", async function(req, res, next) {
 })
 
 /* GET /companies/[code]
-    Return obj of company: {company: {code, name, description}} */
+Return obj of company: {company: {code, name, description, invoices: [id, ...]}}
+
+If the company given cannot be found, this should return a 404 status response. */
 router.get("/:code", async function(req, res, next) {
     try {
-        const code = req.params.code
-        const results = await db.query('SELECT code, name, description FROM companies WHERE code=$1', [code])
-        if (results.rows.length === 0) {
+        const code = req.params.code;
+        const compResults = await db.query('SELECT code, name, description FROM companies WHERE code=$1', [code]);
+        if (compResults.rows[0].length === 0) {
             throw new ExpressError("Not found", 404);
         }
+        const invResults = await db.query('SELECT * FROM invoices WHERE comp_code =$1', [code]);
+
         return res.json({
             company: {
-                code: results.rows[0].code,
-                name: results.rows[0].name,
-                description: results.rows[0].description
+                code: compResults.rows[0].code,
+                name: compResults.rows[0].name,
+                description: compResults.rows[0].description,
+                invoices: invResults.rows
             }
         })
     } catch (err) {
@@ -69,7 +74,7 @@ router.patch("/:code", async function(req, res, next) {
         const { name, description } = req.body;
         let code = req.params.code;
         console.log(name, description, code)
-        const results = await db.query('UPDATE companies set name=$1, description=$2 WHERE code =$3 RETURNING code, name, description', [name, description, code]);
+        const results = await db.query('UPDATE companies SET name=$1, description=$2 WHERE code =$3 RETURNING code, name, description', [name, description, code]);
         return res.status(200).json({
             company: {
                 name: results.rows[0].name,

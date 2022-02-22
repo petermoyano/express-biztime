@@ -1,13 +1,16 @@
 /** BizTime express application. */
 
-const appRoutes = require("./routes")
+const appCompRoutes = require("./routes/compRoutes");
+const appInvRoutes = require("./routes/invoiceRoutes");
+
 const express = require("express");
 const ExpressError = require("./expressError")
 
 const app = express();
 
 app.use(express.json());
-app.use("/companies", appRoutes)
+app.use("/companies", appCompRoutes)
+app.use("/invoices", appInvRoutes)
 
 
 
