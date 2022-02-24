@@ -58,7 +58,7 @@ router.post("/", async function(req, res, next) {
 });
 
 
-/* PUT /companies/[code]
+/* PATCH /companies/[code]
     Edit existing company.
     Should return 404 if company cannot be found.
     Needs to be given JSON like: {name, description}

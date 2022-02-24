@@ -1,8 +1,8 @@
 process.env.NODE_ENV = "test"
 
 const request = require("supertest");
-const app = require("../app");
-const db = require("../db");
+const app = require("./app");
+const db = require("./db");
 
 let testCompany;
 let testInvoice;
@@ -55,6 +55,45 @@ describe("GET /companies/:[code]", function() {
                 description: testCompany.description,
                 invoices: [testInvoice]
             }
-        })
-    })
-})
+        });
+    });
+});
+
+describe("POST /companies", function() {
+    test("Creates a new company", async function() {
+        const response = await request(app)
+            .post('/companies')
+            .send({ code: "hbo", name: "hbo", description: "Great movies" });
+        expect(response.statusCode).toBe(201);
+        expect(response.body).toEqual({
+            company: { code: "hbo", name: "hbo", description: "Great movies" }
+        });
+    });
+});
+
+describe("PATCH /companies/:[code]", function() {
+    test("Updates a single company", async function() {
+        const response = await request(app)
+            .patch(`/companies/${testCompany.code}`)
+            .send({
+                name: "mozzila web docs",
+                description: "Thank you MDN"
+            });
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({
+            company: {
+                code: testCompany.code,
+                name: "mozzila web docs",
+                description: "Thank you MDN",
+            }
+        });
+    });
+});
+
+describe("DELETE /companies/:[code]", function() {
+    test("Deletes a single company", async function() {
+        const response = await request(app).delete(`/companies/${testCompany.code}`);
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({ status: "deleted" });
+    });
+});

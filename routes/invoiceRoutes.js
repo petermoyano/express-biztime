@@ -26,7 +26,6 @@ router.get("/:id", async function(req, res, next) {
         if (invResults.rows.length === 0) {
             throw new ExpressError("Not found", 404);
         }
-        console.log(`The invoice is: ${invResults.rows[0]}`);
         /* A second query to the db for company info */
         const comp_code = invResults.rows[0].comp_code;
         const compResults = await db.query('SELECT code, name, description FROM companies WHERE code=$1', [comp_code])
@@ -78,7 +77,7 @@ router.post("/", async function(req, res, next) {
 });
 
 
-/* PUT /invoices/[id]
+/* Patch /invoices/[id]
 Updates an invoice.
 If invoice cannot be found, returns a 404.
 Needs to be passed in a JSON body of {amt}
@@ -87,8 +86,7 @@ router.patch("/:id", async function(req, res, next) {
     try {
         const { amt } = req.body;
         let id = req.params.id;
-        console.log(amt, id);
-        const results = await db.query('UPDATE companies SET amt=$1 WHERE id =$2 RETURNING id, comp_code, amt, paid, add_date, paid_date', [amt, id]);
+        const results = await db.query('UPDATE invoices SET amt=$1 WHERE id =$2 RETURNING id, comp_code, amt, paid, add_date, paid_date', [amt, id]);
         if (results.rows.length === 0) {
             throw new ExpressError("Not found", 404);
         }
