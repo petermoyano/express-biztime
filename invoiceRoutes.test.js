@@ -4,6 +4,7 @@ const request = require("supertest");
 const app = require("./app");
 const db = require("./db");
 
+
 let testCompany;
 let testInvoice;
 beforeEach(async function() {
@@ -88,7 +89,7 @@ describe("PATCH /invoices/:[id]", function() {
     test("Updates a single invoice", async function() {
         const response = await request(app)
             .patch(`/invoices/${testInvoice.id}`)
-            .send({ amt: 400 });
+            .send({ amt: 400, paid: false });
         expect(response.statusCode).toBe(200);
         expect(response.body).toEqual({
             invoice: {
