@@ -1,5 +1,5 @@
 const express = require("express");
-
+const slugify = require("slugify");
 const router = new express.Router();
 const ExpressError = require("../expressError");
 const db = require("../db")
@@ -47,7 +47,6 @@ router.get("/:code", async function(req, res, next) {
 router.post("/", async function(req, res, next) {
     try {
         const { code, name, description } = req.body;
-        console.log(code, name, description);
         const results = await db.query('INSERT INTO companies (code, name, description) VALUES ($1, $2, $3) RETURNING code, name, description', [code, name, description]);
         return res.status(201).json({
             company: results.rows[0]
@@ -67,7 +66,6 @@ router.patch("/:code", async function(req, res, next) {
     try {
         const { name, description } = req.body;
         let code = req.params.code;
-        console.log(name, description, code)
         const results = await db.query('UPDATE companies SET name=$1, description=$2 WHERE code =$3 RETURNING code, name, description', [name, description, code]);
         return res.status(200).json({
             company: {
