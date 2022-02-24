@@ -1,5 +1,4 @@
 const express = require("express");
-const slugify = require("slugify");
 const router = new express.Router();
 const ExpressError = require("../expressError");
 const db = require("../db")
@@ -21,7 +20,14 @@ If the company given cannot be found, this should return a 404 status response. 
 router.get("/:code", async function(req, res, next) {
     try {
         const code = req.params.code;
-        const compResults = await db.query('SELECT code, name, description FROM companies WHERE code=$1', [code]);
+        const compResults = await db.query(`
+        SELECT c.code, c.name, c.description, i.industry 
+        FROM companies AS c 
+        LEFT JOIN companies_industries AS ci
+        ON c.code = ci.comp_code
+        LEFT JOIN industries AS i 
+        ON ci.ind_code = i.code
+        WHERE c.code=$1`, [code]);
         if (compResults.rows[0].length === 0) {
             throw new ExpressError("Not found", 404);
         }
@@ -32,7 +38,8 @@ router.get("/:code", async function(req, res, next) {
                 code: compResults.rows[0].code,
                 name: compResults.rows[0].name,
                 description: compResults.rows[0].description,
-                invoices: invResults.rows
+                invoices: invResults.rows,
+                industries: compResults.rows[0].industry
             }
         })
     } catch (err) {
